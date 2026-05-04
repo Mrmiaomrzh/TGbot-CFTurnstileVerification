@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安全验证</title>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f4f9; }
+        .card { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>人机验证</h3>
+        <p>请完成下方验证以继续操作</p>
+        <div class="cf-turnstile" data-sitekey="<YOUR-SITE-KEY>" data-callback="onSuccess"></div>
+        <p id="msg"></p>
+    </div>
+
+    <script>
+        function onSuccess(token) {
+            const params = new URLSearchParams(window.location.search);
+            const uid = params.get('u');
+            const msg = document.getElementById('msg');
+            
+            msg.innerText = "处理中...";
+            
+            fetch('<YOUR-PAGES-LINK>', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token, uid })
+            }).then(res => res.json()).then(data => {
+                if(data.success) msg.innerHTML = "<span style='color:green'>验证成功！请返回 Telegram</span>";
+                else msg.innerHTML = "<span style='color:red'>验证失败：" + data.error + "</span>";
+            });
+        }
+    </script>
+</body>
+</html>
